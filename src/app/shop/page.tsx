@@ -41,7 +41,7 @@ export default async function ShopPage() {
                     <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
                       <Image
                         priority={true}
-                        src={product.imageUrl}
+                        src={`/${product.imageUrl}`}
                         alt="product-image"
                         width={400}
                         height={400}

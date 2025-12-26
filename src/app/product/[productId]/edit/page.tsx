@@ -5,18 +5,19 @@ import { cookies } from "next/headers";
 import { EditProductForm } from "./components/editProduct";
 
 interface EditProductProps {
-  params: {
+  params: Promise<{
     productId: string;
-  };
+  }>;
 }
 
 export default async function EditProductPage({ params }: EditProductProps) {
   const isAuth = await isAuthenticated(await cookies());
-  const product = await getProductByIdAction(await params.productId);
+  const productId = (await params).productId;
+  const product = await getProductByIdAction(productId);
   return (
     <>
       <MainHeader isAuth={isAuth} />
-      <EditProductForm product={product} productId={params.productId} />
+      <EditProductForm product={product} productId={productId} />
     </>
   );
 }

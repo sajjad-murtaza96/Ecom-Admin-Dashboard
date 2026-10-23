@@ -1,6 +1,6 @@
 "use client";
 import { updateProductAction } from "@/app/actions/Product";
-import { ProductForm } from "@/app/components/productForm";
+import { ProductForm } from "@/components/productForm";
 import { useProductReducer } from "@/reducers/product/product.hook";
 import type { Product } from "@/reducers/product/product.type";
 import { ProductOperation } from "@/utilities/product";

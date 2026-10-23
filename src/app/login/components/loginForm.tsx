@@ -1,10 +1,12 @@
 "use client";
 import { useState } from "react";
-import { login } from "@/app/actions/login";
+import { useFormStatus } from "react-dom";
+import Image from "next/image";
+import { login, loginWithGoogle } from "@/app/actions/login";
 import { Users } from "@/utilities/input-validator";
 import { useUserReducer } from "@/reducers/user/user.hook";
 
-export const LoginForm: React.FC = () => {
+export const LoginForm: React.FC<{ errorMessage?: string }> = ({ errorMessage }) => {
   const {
     state: { user, error, loading },
     addUser,
@@ -17,7 +19,7 @@ export const LoginForm: React.FC = () => {
     e.preventDefault();
     startLoading();
     if (!user.name && !user.password) {
-      showError("Username and Password are required");
+      showError("Email and Password are required");
       return;
     }
     const result = Users.safeParse(user);
@@ -42,29 +44,45 @@ export const LoginForm: React.FC = () => {
           Login
         </h1>
 
+        {errorMessage && <p role="alert" className="mb-4 text-sm text-red-600">{errorMessage}</p>}
+        <form action={loginWithGoogle}>
+          <GoogleSignInButton />
+        </form>
+        <div className="my-6 flex items-center gap-3 text-sm text-gray-500">
+          <div className="h-px flex-1 bg-gray-200" />
+          <span>or</span>
+          <div className="h-px flex-1 bg-gray-200" />
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-              Username
+            <label htmlFor="login-email" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+              Email
             </label>
             <input
+              id="login-email"
               name="name"
-              type="text"
+              type="email"
+              autoComplete="email"
+              required
               value={user.name}
               onChange={(e) => handleChange(e)}
               className="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="username"
+              placeholder="you@example.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            <label htmlFor="login-password" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
               Password
             </label>
             <div className="relative">
               <input
+                id="login-password"
                 name="password"
                 type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                required
                 value={user.password}
                 onChange={(e) => handleChange(e)}
                 className="w-full px-3 py-2 border rounded-md bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -129,7 +147,7 @@ export const LoginForm: React.FC = () => {
             </div>
           </div>
 
-          {error ? <p className="text-sm text-red-600">{error}</p> : null}
+          {error ? <p role="alert" className="text-sm text-red-600">{error}</p> : null}
 
           <button
             type="submit"
@@ -140,13 +158,30 @@ export const LoginForm: React.FC = () => {
           </button>
         </form>
 
-        <p className="mt-4 text-sm text-gray-600 dark:text-gray-300">
-          Don’t have an account?{" "}
-          <a href="/register" className="text-indigo-600 hover:underline">
-            Sign up
-          </a>
-        </p>
       </div>
     </div>
   );
 };
+
+function GoogleSignInButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="flex min-h-11 w-full items-center justify-center gap-2 rounded-md border border-gray-300 px-4 py-2 font-medium text-gray-900 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+    >
+      <Image
+        src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+        alt=""
+        aria-hidden="true"
+        width={20}
+        height={20}
+        unoptimized
+        className="shrink-0"
+      />
+      {pending ? "Connecting..." : "Continue with Google"}
+    </button>
+  );
+}

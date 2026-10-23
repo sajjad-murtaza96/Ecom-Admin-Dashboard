@@ -1,10 +1,10 @@
 import React from "react";
 import Image from "next/image";
 
-export const ProductGridSkeleton: React.FC = () => {
+export const ProductGridSkeleton: React.FC<{ productLength: number }> = ({ productLength }) => {
   return (
     <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
-      {Array.from({ length: 8 }).map((_, index) => (
+      {Array.from({ length: productLength }).map((_, index) => (
         <ProductCardSkeleton key={index} />
       ))}
     </div>

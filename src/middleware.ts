@@ -1,15 +1,21 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
+  const response = NextResponse.next({ request: req });
   const pathname = req.nextUrl.pathname;
-  console.log("[middleware] request pathname:", pathname);
   if (pathname === "/") {
-    return NextResponse.redirect(new URL("/shop", req.url));
+    const redirectResponse = NextResponse.redirect(new URL("/shop", req.url));
+    response.cookies
+      .getAll()
+      .forEach((cookie) => redirectResponse.cookies.set(cookie));
+    return redirectResponse;
   }
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
-  matcher: ["/"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
 };

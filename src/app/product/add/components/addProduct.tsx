@@ -1,6 +1,6 @@
 "use client";
 import { createProductAction } from "@/app/actions/Product";
-import { ProductForm } from "@/app/components/productForm";
+import { ProductForm } from "@/components/productForm";
 import {
   useProductReducer,
   initialState,

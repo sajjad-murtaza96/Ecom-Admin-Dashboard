@@ -1,23 +1,21 @@
 import Link from "next/link";
-import Image from "next/image";
-import MainHeader from "../components/header";
-import { isAuthenticated } from "../../utilities/auth";
-import { cookies } from "next/headers";
-import { getAllProducts } from "../../db/query";
-import { CrossIcon } from "./components/cross-icon";
-import { EditIcon } from "./components/edit-icon";
 import { Suspense } from "react";
 import { ProductGridSkeleton } from "./skeletons/product-grid-skeleton";
+import { getAllProductsAction } from "../actions/supabase/products";
+import { ProductImage } from "../../components/product-image";
 
 export default async function ShopPage() {
-  const isAuth = await isAuthenticated(await cookies());
+  const [products] = await Promise.all([
+    getAllProductsAction(),
+  ]);
   return (
     <>
-      <MainHeader isAuth={isAuth} />
       <div className="bg-white">
         <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
-          <Suspense fallback={<ProductGridSkeleton />}>
-            <ProductCard isAuth={isAuth} />
+          <Suspense
+            fallback={<ProductGridSkeleton productLength={products.length} />}
+          >
+            <ProductCard products={products} />
           </Suspense>
         </div>
       </div>
@@ -25,8 +23,11 @@ export default async function ShopPage() {
   );
 }
 
-async function ProductCard({ isAuth }: { isAuth: boolean }) {
-  const products = await getAllProducts();
+async function ProductCard({
+  products,
+}: {
+  products: Awaited<ReturnType<typeof getAllProductsAction>>;
+}) {
   if (!products || products.length === 0)
     return (
       <div className="flex items-center justify-center py-20">
@@ -35,9 +36,9 @@ async function ProductCard({ isAuth }: { isAuth: boolean }) {
             No products available
           </p>
           <p className="mt-2 text-sm text-gray-500">
-            {isAuth
-              ? "Add new products from the dashboard."
-              : "Please check back later or ask an admin to add products."}
+            {
+              "Please check back later or ask data team to add products."
+            }
           </p>
         </div>
       </div>
@@ -47,20 +48,20 @@ async function ProductCard({ isAuth }: { isAuth: boolean }) {
       <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
         {products.map((product) => (
           <div key={product.id} className="relative">
-            {isAuth && <CrossIcon productId={product.id} />}
-            {isAuth && <EditIcon productId={product.id} />}
-            <Link href={`/${product.title}/${product.id}`} className="group">
-              <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
-                <Image
-                  priority={true}
-                  src={product.imageUrl}
-                  alt="product-image"
-                  width={400}
-                  height={400}
-                  className="h-full w-full object-cover object-center group-hover:opacity-75"
+            {/* {isAuth && <CrossIcon productId={product.id} />} */}
+            {/* {isAuth && <EditIcon productId={product.id} />} */}
+            <Link href={`/product/${product.id}`} className="group">
+              <div className="relative aspect-square w-full overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+                <ProductImage
+                  src={product.image_url}
+                  placeholder="blur"
+                  blurDataURL="/images/product-placeholder.svg"
+                  alt={product.name}
+                  fill
+                  sizes="(min-width: 1280px) 280px, (min-width: 1024px) calc((100vw - 112px) / 3), (min-width: 640px) 300px, calc(100vw - 32px)"
                 />
               </div>
-              <h3 className="mt-4 text-sm text-gray-700">{product.title}</h3>
+              <h3 className="mt-4 text-sm text-gray-700">{product.name}</h3>
               <p className="mt-1 text-lg font-medium text-gray-900">{`$${product.price}`}</p>
             </Link>
           </div>

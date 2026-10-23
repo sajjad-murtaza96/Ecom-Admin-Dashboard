@@ -1,7 +1,5 @@
-import { ArrowLeftIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { cookies } from "next/headers";
-import { isAuthenticated } from "@/utilities/auth";
 import { getProductByIdAction } from "@/app/actions/supabase/products";
 import { ProductImage } from "@/components/product-image";
 import { ProductPurchase } from "./components/product-purchase";
@@ -16,10 +14,7 @@ export default async function ProductDetailPage({
   params,
 }: ProductDetailProps) {
   const { productId } = await params;
-  const [product, isAuth] = await Promise.all([
-    getProductByIdAction(productId),
-    isAuthenticated(await cookies()),
-  ]);
+  const product = await getProductByIdAction(productId);
 
   return (
     <>
@@ -67,19 +62,6 @@ export default async function ProductDetailPage({
                   {product.description || "No description available."}
                 </p>
               </div>
-
-              {isAuth && (
-                <Link
-                  href={`/product/${productId}/edit`}
-                  className="mt-8 inline-flex items-center justify-center gap-2 rounded-md bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-600"
-                >
-                  <PencilSquareIcon
-                    aria-hidden="true"
-                    className="h-5 w-5 shrink-0"
-                  />
-                  Edit product
-                </Link>
-              )}
             </section>
           </div>
         </div>

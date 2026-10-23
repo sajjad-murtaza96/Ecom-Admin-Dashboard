@@ -24,20 +24,20 @@ const MainHeader = async ({ isAuth }: { isAuth: boolean }) => {
         className={classes.navigation}
         aria-label="Global"
       >
-          <Link
-            href="/"
-            aria-label="Electron home"
-            className={classes.logo}
-          >
-            <Image
-              src="/ecom-logo.svg"
-              alt="ELECTRON"
-              width={224}
-              height={48}
-              className={classes.logoImage}
-              priority
-            />
-          </Link>
+        <Link
+          href="/"
+          aria-label="Electron home"
+          className={classes.logo}
+        >
+          <Image
+            src="/ecom-logo.svg"
+            alt="ELECTRON"
+            width={224}
+            height={48}
+            className={classes.logoImage}
+            priority
+          />
+        </Link>
         <div className={classes.links}>
           <Link
             href="/shop"
@@ -47,16 +47,7 @@ const MainHeader = async ({ isAuth }: { isAuth: boolean }) => {
             <span>Shop</span>
           </Link>
           {isAuth && (
-            <>
-              <Link
-                href="/product/add"
-                className={classes.navLink}
-              >
-                <PlusIcon aria-hidden="true" />
-                <span>Add product</span>
-              </Link>
-              <LogOut />
-            </>
+            <LogOut />
           )}
           {!isAuth && <LogIn />}
         </div>

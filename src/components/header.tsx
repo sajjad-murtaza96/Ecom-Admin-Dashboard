@@ -1,23 +1,19 @@
 import Link from "next/link";
 import Image from "next/image";
 import {
-  PlusIcon,
+  ClipboardDocumentListIcon,
   ShoppingBagIcon,
-  ShoppingCartIcon,
+  ShoppingCartIcon
 } from "@heroicons/react/24/outline";
-import {
-  getCartByUserIdAction,
-  getCartItemsAction,
-} from "@/app/actions/supabase/cart";
 import { LogIn } from "./login";
-import { LogOut } from "./logout";
+import { ProfileMenu } from "./profile-menu";
 import classes from "./header.module.css";
+import { getCartByUserIdAction, getCartItemsAction } from "@/app/actions/supabase/cart";
 
 const MainHeader = async ({ isAuth }: { isAuth: boolean }) => {
   const cart = isAuth ? await getCartByUserIdAction() : undefined;
   const items = cart ? await getCartItemsAction(cart.id) : [];
   const cartCount = items.reduce((count, item) => count + item.quantity, 0);
-
   return (
     <header className={classes.header}>
       <nav
@@ -47,7 +43,13 @@ const MainHeader = async ({ isAuth }: { isAuth: boolean }) => {
             <span>Shop</span>
           </Link>
           {isAuth && (
-            <LogOut />
+            <>
+              <Link href="/orders" className={classes.navLink}>
+                <ClipboardDocumentListIcon aria-hidden="true" />
+                <span>My Orders</span>
+              </Link>
+              <ProfileMenu />
+            </>
           )}
           {!isAuth && <LogIn />}
         </div>

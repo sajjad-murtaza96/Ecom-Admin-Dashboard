@@ -3,6 +3,7 @@ export interface IStep {
 }
 
 export const steps: IStep[] = [
+  { title: "Cart" },
   { title: "Shipping" },
   { title: "Delivery" },
   { title: "Payment" },

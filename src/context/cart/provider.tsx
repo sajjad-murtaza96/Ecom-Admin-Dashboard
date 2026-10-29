@@ -1,5 +1,4 @@
 "use client";
-
 import { createContext, useContext, useOptimistic, type ReactNode } from "react";
 import { getCartSubtotal, type CartItem } from "@/utilities/cart";
 

@@ -8,11 +8,13 @@ const currency = new Intl.NumberFormat("en-US", {
 export function OrderSummary({
     id,
     headerAction,
+    headerContent,
     children,
     footer,
 }: {
     id: string;
     headerAction?: ReactNode;
+    headerContent?: ReactNode;
     children: ReactNode;
     footer?: ReactNode;
 }) {
@@ -21,12 +23,15 @@ export function OrderSummary({
             aria-labelledby={id}
             className="min-w-0 rounded-lg border border-gray-200 bg-gray-50 p-5 sm:p-8 lg:sticky lg:top-8"
         >
-            <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 id={id} className="text-xl font-semibold">
-                    Order Summary
-                </h2>
-                {headerAction}
-            </div>
+            <header>
+                {headerContent && <div className="mb-5 border-b border-gray-200 pb-5 pt-1">{headerContent}</div>}
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h2 id={id} className="text-xl font-semibold">
+                        Order Summary
+                    </h2>
+                    {headerAction}
+                </div>
+            </header>
             {children}
             {footer}
         </aside>

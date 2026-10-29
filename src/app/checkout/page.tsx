@@ -8,12 +8,13 @@ import {
 import { Cart, getCartSubtotal } from "@/utilities/cart";
 import { ReactNode, Suspense } from "react";
 import CheckoutSkeleton from "./skeletons/checkout-skeleton";
-import { Payment } from "@/components/checkout/payment";
 import { OrderSummary } from "@/components/order-summary";
 import { CheckoutProvider } from "@/context/checkout/provider";
 import { ItemLines } from "@/components/checkout/order-summary/item-lines";
 import { ShippingAddress } from "@/components/checkout/shipping-address";
 import { CheckoutOrderSummaryLines } from "@/components/checkout/order-summary/total-lines";
+import Payment from "@/components/checkout/payment";
+import { DeliveryService } from "@/components/checkout/delivery";
 
 export const metadata: Metadata = { title: "Checkout" };
 
@@ -71,7 +72,11 @@ async function Checkout({ cart }: { cart: Cart }) {
   return (
     <CheckoutProvider>
       <CheckoutWrapper>
-        <CheckoutSteps shipping={<ShippingAddress />} payment={<Payment />} />
+        <CheckoutSteps>
+          <ShippingAddress />
+          <DeliveryService subtotal={subtotal} />
+          <Payment cartId={cart.id} items={items} />
+        </CheckoutSteps>
         <OrderSummary
           id="checkout-order-summary"
           headerAction={
@@ -88,7 +93,9 @@ async function Checkout({ cart }: { cart: Cart }) {
             </p>
           }
         >
-          <CheckoutOrderSummaryLines subtotal={subtotal} itemLines={<ItemLines items={items} />} />
+          <CheckoutOrderSummaryLines subtotal={subtotal} >
+            <ItemLines items={items} />
+          </CheckoutOrderSummaryLines>
         </OrderSummary>
       </CheckoutWrapper>
     </CheckoutProvider>

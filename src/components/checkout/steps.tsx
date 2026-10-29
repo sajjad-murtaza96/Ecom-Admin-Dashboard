@@ -1,24 +1,31 @@
 "use client";
-import { type ReactNode } from "react";
-import { useCheckout } from "@/context/checkout/provider";
+import { Children, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import { PaymentStatus, useCheckout } from "@/context/checkout/provider";
 import { ContinueCheckout } from "./continue-checkout";
-import { DeliveryService } from "./delivery";
 import { CheckoutStepper } from "./stepper/stepper";
 import { steps } from "./stepper/stepper-config";
 
-export const CheckoutSteps = ({ shipping, payment }: { shipping: ReactNode; payment: ReactNode }) => {
+export const CheckoutSteps = ({ children }: { children: ReactNode }) => {
+  const router = useRouter();
   const {
     activeStep,
-    selectedDelivery,
-    setSelectedDelivery,
     nextStep,
     previousStep,
     goToPreviousStep,
     paymentStatus,
   } = useCheckout();
 
+  const handleStepSelect = (step: number) => {
+    if (step === 0) {
+      router.push("/cart");
+      return;
+    }
+    goToPreviousStep(step);
+  };
+
   const handleNext = () => {
-    if (activeStep === 0) {
+    if (activeStep === 1) {
       const shippingForm = document.querySelector<HTMLFormElement>(
         "#checkout-shipping-form",
       );
@@ -32,24 +39,17 @@ export const CheckoutSteps = ({ shipping, payment }: { shipping: ReactNode; paym
       <CheckoutStepper
         steps={steps}
         activeStep={activeStep}
-        onStepSelect={goToPreviousStep}
-        disabled={["submitting", "processing", "succeeded"].includes(paymentStatus)}
+        onStepSelectAction={handleStepSelect}
+        disabled={[PaymentStatus.submitting, PaymentStatus.processing].includes(paymentStatus)}
       />
       <div className="mt-10 min-h-64">
-        {activeStep === 0 && shipping}
-        {activeStep === 1 && (
-          <DeliveryService
-            selected={selectedDelivery}
-            setSelectedAction={setSelectedDelivery}
-          />
-        )}
-        {activeStep === 2 && payment}
+        {Children.toArray(children)[activeStep - 1]}
       </div>
       <ContinueCheckout
         activeStep={activeStep}
         isLastStep={activeStep === steps.length - 1}
-        handleNext={handleNext}
-        handlePrev={previousStep}
+        handleNextAction={handleNext}
+        handlePrevAction={previousStep}
       />
     </section>
   );

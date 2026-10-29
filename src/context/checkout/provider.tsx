@@ -1,6 +1,8 @@
 "use client"
 import {
     createContext,
+    useCallback,
+    useRef,
     useState,
     useContext,
     type Dispatch,
@@ -8,21 +10,31 @@ import {
     type SetStateAction,
 } from "react";
 import { useSearchParams } from "next/navigation";
-import { deliveryOptions, DeliveryOptions } from "@/components/checkout/delivery/delivery-config";
+import { deliveryOptions, type IDeliveryOptions } from "@/components/checkout/delivery/delivery-config";
 import { steps } from "@/components/checkout/stepper/stepper-config";
 import type { ShippingAddress } from "@/components/checkout/shipping-address/types";
+import { createPaymentIntent } from "@/app/actions/payment/create-payment-intent-action";
 
-type PaymentStatus = "loading" | "incomplete" | "ready" | "submitting" | "processing" | "succeeded" | "error";
+export enum PaymentStatus {
+    loading = "loading",
+    incomplete = "incomplete",
+    ready = "ready",
+    submitting = "submitting",
+    processing = "processing",
+    succeeded = "succeeded",
+    error = "error",
+}
 
 interface CheckoutContextValue {
     activeStep: number;
-    selectedDelivery: DeliveryOptions;
-    setSelectedDelivery: Dispatch<SetStateAction<DeliveryOptions>>;
+    selectedDelivery: IDeliveryOptions;
+    setSelectedDelivery: Dispatch<SetStateAction<IDeliveryOptions>>;
     nextStep: () => void;
     previousStep: () => void;
     goToPreviousStep: (step: number) => void;
     paymentStatus: PaymentStatus;
     setPaymentStatus: Dispatch<SetStateAction<PaymentStatus>>;
+    initializePayment: () => ReturnType<typeof createPaymentIntent>;
     shippingAddress: ShippingAddress;
     saveShippingAddress: Dispatch<SetStateAction<ShippingAddress>>;
 }
@@ -38,9 +50,8 @@ export const useCheckout = () => {
 };
 
 export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
-    const searchParams = useSearchParams();
-    const isPaymentReturn = searchParams.has("payment_intent_client_secret");
-    const [activeStep, setActiveStep] = useState(isPaymentReturn ? steps.length - 1 : 0);
+    const transactionId = useSearchParams().get("transactionId");
+    const [activeStep, setActiveStep] = useState(transactionId ? steps.length : 1);
     const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
         firstName: "",
         lastName: "",
@@ -53,19 +64,32 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
         postalCode: "",
         country: "",
     });
-    const [selectedDelivery, setSelectedDelivery] = useState<DeliveryOptions>(
-        isPaymentReturn
-            ? (deliveryOptions.find((option) => option.id === searchParams.get("delivery"))?.id ?? DeliveryOptions.DELIVERY_STANDARD)
-            : DeliveryOptions.DELIVERY_STANDARD,
-    );
-    const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("loading");
+    const [selectedDelivery, setSelectedDelivery] = useState<IDeliveryOptions>(deliveryOptions[0]);
+    const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>(PaymentStatus.loading);
+    const paymentRequest = useRef<{
+        key: string;
+        promise: ReturnType<typeof createPaymentIntent>;
+    } | null>(null);
+
+    const initializePayment = useCallback(() => {
+        const params = { deliveryOption: selectedDelivery, shippingAddress };
+        const key = JSON.stringify(params);
+        if (paymentRequest.current?.key === key) return paymentRequest.current.promise;
+
+        const promise = createPaymentIntent({ ...params, requestId: crypto.randomUUID() });
+        paymentRequest.current = { key, promise };
+        void promise.catch(() => {
+            if (paymentRequest.current?.promise === promise) paymentRequest.current = null;
+        });
+        return promise;
+    }, [selectedDelivery, shippingAddress]);
 
     const nextStep = () => {
         setActiveStep((current) => Math.min(current + 1, steps.length - 1));
     };
 
     const goToPreviousStep = (step: number) => {
-        if (!Number.isInteger(step) || step < 0 || ["submitting", "processing", "succeeded"].includes(paymentStatus)) return;
+        if (!Number.isInteger(step) || step <= 0) return;
         setActiveStep((current) => step < current ? step : current);
     };
 
@@ -84,6 +108,7 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
                 goToPreviousStep,
                 paymentStatus,
                 setPaymentStatus,
+                initializePayment,
                 shippingAddress,
                 saveShippingAddress: setShippingAddress,
             }}

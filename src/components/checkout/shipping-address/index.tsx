@@ -9,7 +9,7 @@ export const ShippingAddress: React.FC = () => {
       className="space-y-5"
     >
       <div>
-        <h2 className="text-lg font-semibold">Shipping information</h2>
+        <h2 className="text-lg font-semibold">Shipping Information</h2>
         <p className="mt-1 text-sm text-gray-600">
           Enter the address where your order should be delivered.
         </p>

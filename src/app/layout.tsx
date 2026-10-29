@@ -4,6 +4,13 @@ import { cookies } from "next/headers";
 import MainHeader from "@/components/header";
 import { isAuthenticated } from "@/utilities/auth";
 import "./globals.css";
+import { CartProvider } from "@/context/cart/provider";
+import {
+  getCartByUserIdAction,
+  getCartItemsAction,
+} from "@/app/actions/supabase/cart";
+import CartPage from "./cart/page";
+import CheckoutPage from "./checkout/page";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

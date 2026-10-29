@@ -7,6 +7,7 @@ import {
   getCartItems,
   getUser,
   removeCartItem,
+  removeCartItems,
   updateCartItemQuantity,
 } from "@/db/supabase/query";
 import { type CartItem } from "@/utilities/cart";
@@ -51,9 +52,19 @@ export async function removeCartItemAction(itemId: string) {
   const { error } = await removeCartItem(itemId);
   if (error) {
     console.error(error);
-    throw new Error("Unable to remove your cart item. Please try again.");
+    throw new Error(error.message || "Unable to remove your cart item. Please try again.");
   }
   revalidatePath("/cart");
+}
+
+export async function removeCartItemsAction(cartId: string) {
+  const { error } = await removeCartItems(cartId);
+  if (error) {
+    console.error(error);
+    throw new Error(
+      error.message || "Unable to remove cart items. Please try again.",
+    );
+  }
 }
 
 export async function createCartAction(productId: string, quantity: number) {

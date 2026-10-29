@@ -7,7 +7,6 @@ import { removeCartItemAction } from "@/app/actions/supabase/cart";
 import { ProductImage } from "@/components/product-image";
 import { type CartItem } from "@/utilities/cart";
 import { CartItemQuantity } from "./cart-item-quantity";
-import { FreeDeliveryProgressBar } from "../order-summary/free-delivery-progress-bar";
 
 const currency = new Intl.NumberFormat("en-US", {
 	style: "currency",

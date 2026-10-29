@@ -1,5 +1,4 @@
 import { Stripe } from "@stripe/stripe-js";
-import { PaymentStatus } from "@/context/checkout/provider";
 import { Loader } from "./loader";
 import { PAYMENT_ERROR_MESSAGE } from "../config";
 

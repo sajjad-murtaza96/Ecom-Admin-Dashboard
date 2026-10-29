@@ -80,7 +80,7 @@ export const PaymentMethod: React.FC<{ cartId: string, items: CartItem[] }> = ({
 
 
 	return (
-		<PaymentError stripe={stripe} error={error} paymentStatus={paymentStatus} clientSecret={clientSecret}>
+		<PaymentError stripe={stripe} error={error} clientSecret={clientSecret}>
 			<Elements key={clientSecret} stripe={stripe} options={{ clientSecret, appearance: appearance }}>
 				<PaymentForm cartId={cartId} items={items} paymentStatus={paymentStatus} setPaymentStatus={setPaymentStatus} error={error} setError={setError} />
 			</Elements>
